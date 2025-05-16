@@ -30,8 +30,7 @@
 
                     <!-- Header with user name -->
                     <div id="chat-header" class="p-4 border-b dark:border-gray-700 bg-white dark:bg-gray-900 text-lg font-semibold">
-                        Chatting with <span id="chatting-user-name"></span>
-                    </div>
+                        Chatting with <span id="chatting-user-name"></span></div>
 
                     <!-- Messages -->
                     <div id="chat-box" class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
@@ -60,8 +59,57 @@
                 </div>
             </div>
 
+            <div id="file-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg max-w-sm w-full">
+                    <div class="text-center mb-4 font-semibold text-lg text-gray-800 dark:text-gray-200">Preview File</div>
+
+                    <div id="preview-content" class="mb-4 text-center"></div>
+
+                    <div class="flex justify-end gap-2">
+                        <button id="cancel-preview" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel</button>
+                        <button id="confirm-send" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Send</button>
+                    </div>
+                </div>
+            </div>
+
 @push('scripts')
         <script>
+            let selectedFile = null;
+
+            document.getElementById('file-upload').addEventListener('change', function () {
+                selectedFile = this.files[0];
+
+                const previewContent = document.getElementById('preview-content');
+                previewContent.innerHTML = '';
+
+                if (selectedFile) {
+                    const fileType = selectedFile.type;
+
+                    if (fileType.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(selectedFile);
+                        img.className = "max-h-64 mx-auto rounded shadow";
+                        previewContent.appendChild(img);
+                    } else {
+                        previewContent.innerHTML = `<p class="text-gray-800 dark:text-gray-200">📄 ${selectedFile.name}</p>`;
+                    }
+
+                    document.getElementById('file-preview-modal').classList.remove('hidden');
+                }
+            });
+
+            // Cancel button
+            document.getElementById('cancel-preview').addEventListener('click', () => {
+                selectedFile = null;
+                document.getElementById('file-upload').value = ''; // Clear input
+                document.getElementById('file-preview-modal').classList.add('hidden');
+            });
+
+            // Confirm send
+            document.getElementById('confirm-send').addEventListener('click', () => {
+                document.getElementById('file-preview-modal').classList.add('hidden');
+                document.getElementById('chat-form').requestSubmit(); // Submit form
+            });
             document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('chat-form').classList.remove('hidden');
                 const currentUserId = {{ auth()->id() }};
@@ -155,8 +203,6 @@
                             document.getElementById('message').value = '';
                             document.getElementById('file-upload').value = '';
                             loadMessages();
-
-
                         });
                 });
             });

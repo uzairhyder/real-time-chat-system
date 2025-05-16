@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,3 +28,6 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+
+
