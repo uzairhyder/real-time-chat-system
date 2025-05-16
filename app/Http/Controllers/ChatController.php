@@ -36,10 +36,25 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request)
     {
+//        dd($request->all());
+        $messageText = $request->message;
+        $filePath = null;
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->store('chat_files', 'public');
+
+            if (empty($messageText)) {
+                $messageText = '[File]';
+            }
+        }
+
+
         $message = Message::create([
             'from_user_id' => auth()->id(),
             'to_user_id' => $request->to_user_id,
-            'message' => $request->message
+            'message' => $messageText,
+            'file_path' => $filePath,
         ]);
 
         return response()->json($message);
